@@ -13,8 +13,8 @@
     "serverless-plugin-typescript": "^2.1.5"
   },
   "dependencies": {
-    "@middy/core": "^5.3.2",
-    "@middy/http-json-body-parser": "^5.3.2",
+    "@middy/core": "^4.0.9",
+    "@middy/http-json-body-parser": "^4.0.9",
     "@types/aws-lambda": "^8.10.137",
     "aws-lambda": "^1.0.7",
     "ts-node": "^10.9.2",
