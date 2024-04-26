@@ -6,8 +6,8 @@ export class UserService {
     // User Creation, Validation & Login
     async CreateUser(event: APIGatewayProxyEventV2) {
         console.log(event)
-        const body = JSON.parse(event.body) // will be using middy for this
-        console.log(body)
+        // const body = JSON.parse(event.body) // will be using middy for this
+        // console.log(body)
         return SuccessResponse({message:"response from create user"})
     }
 
