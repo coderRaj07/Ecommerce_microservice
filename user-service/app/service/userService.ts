@@ -1,60 +1,80 @@
-import { SuccessResponse } from "../utility/response";
+import { Signup } from "app/handler";
+import { ErrorResponse, SuccessResponse } from "../utility/response";
 import { APIGatewayProxyEventV2 } from "aws-lambda";
+import { plainToClass } from "class-transformer";
+import { SignupInput } from "../models/dto/SignupInput";
+import { UserRepository } from "../repository/userRepository";
+import { AppValidationError } from "../utility/errors";
+import { autoInjectable } from "tsyringe";
 
+@autoInjectable()
 export class UserService {
-    constructor() { }
-    // User Creation, Validation & Login
+    repository: UserRepository;
+
+    constructor(repository: UserRepository) {
+        this.repository = repository;
+    }
+
     async CreateUser(event: APIGatewayProxyEventV2) {
-        console.log(event)
-        // const body = JSON.parse(event.body) // will be using middy for this
-        // console.log(body)
-        return SuccessResponse({message:"response from create user"})
+        try {
+            // to transform a plain JavaScript object (event.body) 
+            // into an instance of the SignupInput class
+            const input = plainToClass(SignupInput, event.body);
+            const error = await AppValidationError(input);
+            if (error) return ErrorResponse(404, error);
+
+            return SuccessResponse(input)
+
+        } catch (error) {
+            console.log(error);
+            return ErrorResponse(500, error);
+        }
     }
 
     async UserLogin(event: APIGatewayProxyEventV2) {
-        return SuccessResponse({message:"response from user login"})
+        return SuccessResponse({ message: "response from user login" })
     }
 
-    async VerifyUser(event: APIGatewayProxyEventV2) { 
-        return SuccessResponse({message:"response from verify user"})
+    async VerifyUser(event: APIGatewayProxyEventV2) {
+        return SuccessResponse({ message: "response from verify user" })
     }
 
     // Profile Section
     async CreateProfile(event: APIGatewayProxyEventV2) {
-        return SuccessResponse({message:"response from create user profie"})
+        return SuccessResponse({ message: "response from create user profie" })
     }
 
     async GetProfile(event: APIGatewayProxyEventV2) {
-        return SuccessResponse({message:"response from Get User Profie"})
+        return SuccessResponse({ message: "response from Get User Profie" })
     }
 
     async EditProfile(event: APIGatewayProxyEventV2) {
-        return SuccessResponse({message:"response from Edit User Profie"})
+        return SuccessResponse({ message: "response from Edit User Profie" })
     }
 
     // Cart Section
     async CreateCart(event: APIGatewayProxyEventV2) {
-        return SuccessResponse({message:"response from create user cart"})
+        return SuccessResponse({ message: "response from create user cart" })
     }
 
     async GetCart(event: APIGatewayProxyEventV2) {
-        return SuccessResponse({message:"response from Get User Cart"})
+        return SuccessResponse({ message: "response from Get User Cart" })
     }
 
     async UpdateCart(event: APIGatewayProxyEventV2) {
-        return SuccessResponse({message:"response from Update User Cart"})
+        return SuccessResponse({ message: "response from Update User Cart" })
     }
 
     // Payment Section
     async CreatePaymentMethod(event: APIGatewayProxyEventV2) {
-        return SuccessResponse({message:"response from create payment method"})
+        return SuccessResponse({ message: "response from create payment method" })
     }
 
     async GetPaymentMethod(event: APIGatewayProxyEventV2) {
-        return SuccessResponse({message:"response from Get payment method"})
+        return SuccessResponse({ message: "response from Get payment method" })
     }
 
     async UpdatePaymentMethod(event: APIGatewayProxyEventV2) {
-        return SuccessResponse({message:"response from Update payment method"})
+        return SuccessResponse({ message: "response from Update payment method" })
     }
 }

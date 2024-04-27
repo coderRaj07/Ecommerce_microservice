@@ -21,6 +21,7 @@ yarn add @middy/core
 
 yarn add @middy/http-json-body-parser
 
+yarn add class-transformer class-validator tsyringe reflect-metadata
 
 ## create an IAM user and accesskey
 
