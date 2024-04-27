@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "sequelize-cli": "^6.6.2",
     "serverless-offline": "^13.3.4",
     "serverless-plugin-typescript": "^2.1.5"
   },
@@ -18,9 +20,13 @@
     "@middy/http-json-body-parser": "^4.0.9",
     "@types/aws-lambda": "^8.10.137",
     "aws-lambda": "^1.0.7",
+    "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "mysql2": "^3.9.7",
+    "pg": "^8.11.5",
     "reflect-metadata": "^0.2.2",
+    "sequelize": "^6.37.3",
     "ts-node": "^10.9.2",
     "tsyringe": "^4.8.0",
     "typescript": "^5.4.5"
