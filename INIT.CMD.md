@@ -20,3 +20,14 @@ yarn run dev
 yarn add @middy/core
 
 yarn add @middy/http-json-body-parser
+
+
+## create an IAM user and accesskey
+
+aws configure
+
+## Default region name [ap-south-1]: 
+
+## Default output format [None]: json
+
+
