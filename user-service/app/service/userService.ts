@@ -1,4 +1,4 @@
-import { Signup } from "app/handler";
+import { Signup } from "../handler";
 import { ErrorResponse, SuccessResponse } from "../utility/response";
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { plainToClass } from "class-transformer";
@@ -6,7 +6,7 @@ import { SignupInput } from "../models/dto/SignupInput";
 import { UserRepository } from "../repository/userRepository";
 import { AppValidationError } from "../utility/errors";
 import { autoInjectable } from "tsyringe";
-import { GetHashedPassword, GetSalt } from "app/utility/password";
+import { GetHashedPassword, GetSalt } from "../utility/password";
 
 @autoInjectable()
 export class UserService {
@@ -27,7 +27,7 @@ export class UserService {
 
             const salt = await GetSalt();
             const hashedPassword = await GetHashedPassword(input.password, salt);
-            
+            console.log(salt, hashedPassword, "SALT AND HASHED PASSWORD")
             const data = await this.repository.createAccount({
                 email: input.email,
                 password: hashedPassword,
@@ -38,7 +38,7 @@ export class UserService {
             return SuccessResponse(input)
 
         } catch (error) {
-            console.log(error);
+            console.error(error, "from userService");
             return ErrorResponse(500, error);
         }
     }
