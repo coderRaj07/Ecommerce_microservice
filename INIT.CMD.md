@@ -23,6 +23,40 @@ yarn add @middy/http-json-body-parser
 
 yarn add class-transformer class-validator tsyringe reflect-metadata
 
+yarn add bcrypt && yarn add --dev @types/bcrypt
+
+## To run postgresql from docker 
+
+## (docker-desktop must be running in background)
+
+docker-compose up 
+
+## Adding sequelize ORM for PGSQL
+
+yarn add sequelize pg mysql2
+
+yarn add --dev sequelize-cli
+
+npx sequelize-cli init
+
+npx sequelize-cli migration:generate --name create-users-table
+
+## On config/config.json
+
+## Taking reference from docker-compose.yml
+
+{
+  "username": "root",
+  "password": "root",
+  "database": "user_service",
+  "host": "127.0.0.1",
+  "dialect": "postgres",
+  "port": 5433
+}
+
+npx sequelize-cli db:migrate
+
+
 ## create an IAM user and accesskey
 
 aws configure
