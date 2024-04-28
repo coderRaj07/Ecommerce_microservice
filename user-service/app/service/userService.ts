@@ -69,6 +69,7 @@ export class UserService {
     async GetVerificationToken(event: APIGatewayProxyEventV2) {
         const token = event.headers.authorization;
         const payload = await VerifyToken(token);
+        // Twilio verification
         if (payload) {
             const {code, expiry} = GenerateAccessCode();
             // save on DB to confirm verification
