@@ -24,7 +24,6 @@ export class UserService {
             const error = await AppValidationError(input);
             if (error) return ErrorResponse(404, error);
 
-
             const salt = await GetSalt();
             const hashedPassword = await GetHashedPassword(input.password, salt);
             console.log(salt, hashedPassword, "SALT AND HASHED PASSWORD")
@@ -35,7 +34,7 @@ export class UserService {
                 userType: "BUYER",
                 salt: salt,
             });
-            return SuccessResponse(input)
+            return SuccessResponse(data)
 
         } catch (error) {
             console.error(error, "from userService");
