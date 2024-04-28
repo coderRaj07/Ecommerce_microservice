@@ -25,6 +25,8 @@ yarn add class-transformer class-validator tsyringe reflect-metadata
 
 yarn add bcrypt && yarn add --dev @types/bcrypt
 
+yarn add jsonwebtoken && yarn add --dev @types/jsonwebtoken
+
 ## To run postgresql from docker 
 
 ## (docker-desktop must be running in background)
