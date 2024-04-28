@@ -2,7 +2,7 @@ import { Signup } from "../handler";
 import { ErrorResponse, SuccessResponse } from "../utility/response";
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { plainToClass } from "class-transformer";
-import { SignupInput } from "../models/dto/SignupInput";
+import { LoginInput, SignupInput } from "../models/dto/index";
 import { UserRepository } from "../repository/userRepository";
 import { AppValidationError } from "../utility/errors";
 import { autoInjectable } from "tsyringe";
@@ -43,7 +43,18 @@ export class UserService {
     }
 
     async UserLogin(event: APIGatewayProxyEventV2) {
-        return SuccessResponse({ message: "response from user login" })
+        try {
+            const input = plainToClass(LoginInput, event.body);
+            const error = await AppValidationError(input);
+            if (error) return ErrorResponse(404, error);
+
+            const data = await this.repository.findAccount(input.email);
+            return SuccessResponse(data)
+
+        } catch (error) {
+            console.error(error, "from userService Login");
+            return ErrorResponse(500, error);
+        }
     }
 
     async VerifyUser(event: APIGatewayProxyEventV2) {
