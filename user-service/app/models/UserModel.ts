@@ -2,6 +2,7 @@ import { sequelize } from '../utility/databaseClient';
 import { Model, DataTypes } from 'sequelize';
 
 export interface UserModelAttributes {
+  id?: number;
   phone: string;
   email: string;
   password: string;

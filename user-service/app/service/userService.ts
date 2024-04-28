@@ -6,7 +6,9 @@ import { LoginInput, SignupInput } from "../models/dto/index";
 import { UserRepository } from "../repository/userRepository";
 import { AppValidationError } from "../utility/errors";
 import { autoInjectable } from "tsyringe";
-import { GetHashedPassword, GetSalt } from "../utility/password";
+import { SendVerificationCode } from "../utility/notification";
+import { GetHashedPassword, GetSalt, GetToken, ValidatePassword, VerifyToken } from "../utility/password";
+import { GenerateAccessCode } from "../utility/notification";
 
 @autoInjectable()
 export class UserService {
@@ -49,12 +51,31 @@ export class UserService {
             if (error) return ErrorResponse(404, error);
 
             const data = await this.repository.findAccount(input.email);
-            return SuccessResponse(data)
+            const verified = await ValidatePassword(input.password, data.password, data.salt);
+            if (!verified) { return ErrorResponse(404, "Invalid Password"); }
+            if(!verified){
+                throw new Error("Invalid Password")
+            }
+            const token = GetToken(data);
+
+            return SuccessResponse({ token })
 
         } catch (error) {
             console.error(error, "from userService Login");
             return ErrorResponse(500, error);
         }
+    }
+
+    async GetVerificationToken(event: APIGatewayProxyEventV2) {
+        const token = event.headers.authorization;
+        const payload = await VerifyToken(token);
+        if (payload) {
+            const {code, expiry} = GenerateAccessCode();
+            // save on DB to confirm verification
+            const response = await SendVerificationCode(code, payload.phone);
+            return SuccessResponse(payload)
+        }
+        return SuccessResponse({ message: "response from verify user" })
     }
 
     async VerifyUser(event: APIGatewayProxyEventV2) {
