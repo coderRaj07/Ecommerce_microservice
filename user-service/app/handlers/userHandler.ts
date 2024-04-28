@@ -10,12 +10,12 @@ const service = container.resolve(UserService);
 
 export const Signup = middy((event: APIGatewayProxyEventV2) => {
     return service.CreateUser(event);
-  }).use(bodyParser());
-  
+}).use(bodyParser());
 
-export const Login = async (event: APIGatewayProxyEventV2) => {
+
+export const Login = middy((event: APIGatewayProxyEventV2) => {
     return service.UserLogin(event);
-}
+}).use(bodyParser());
 
 export const Verify = async (event: APIGatewayProxyEventV2) => {
     return service.VerifyUser(event);
