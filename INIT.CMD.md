@@ -41,6 +41,8 @@ npx sequelize-cli init
 
 npx sequelize-cli migration:generate --name create-users-table
 
+npx sequelize db:migrate
+
 ## On config/config.json
 
 ## Taking reference from docker-compose.yml
