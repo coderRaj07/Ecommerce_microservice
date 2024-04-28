@@ -22,8 +22,8 @@ export const ValidatePassword = async (
     return hashedPassword === savedPassword;
 }
 
-export const GetToken = ({ email, id, phone, userType }: UserModelAttributes) => {
-    return jwt.sign({ email, id, phone, userType }, APP_SECRET, { expiresIn: '1y' });
+export const GetToken = ({ email, user_id, phone, userType }: UserModelAttributes) => {
+    return jwt.sign({ email, user_id, phone, userType }, APP_SECRET, { expiresIn: '1y' });
 }
 
 export const VerifyToken = async (token: string): Promise<UserModelAttributes | false> => {
