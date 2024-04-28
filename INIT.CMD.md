@@ -66,3 +66,9 @@ aws configure
 ## Default output format [None]: json
 
 
+
+## To run the app
+
+yarn run dev
+
+docker-compose up
