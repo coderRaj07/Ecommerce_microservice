@@ -2,7 +2,7 @@ import { sequelize } from '../utility/databaseClient';
 import { Model, DataTypes } from 'sequelize';
 
 export interface UserModelAttributes {
-  id?: number;
+  user_id?: number;
   phone: string;
   email: string;
   password: string;
@@ -10,10 +10,17 @@ export interface UserModelAttributes {
   userType: "BUYER" | "SELLER";
 }
 
-export class UserModel extends Model<UserModelAttributes> {}
+export class UserModel extends Model<UserModelAttributes> { }
 
 UserModel.init(
   {
+    user_id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+      unique: true,
+    },
     phone: {
       type: DataTypes.STRING,
       allowNull: false,
