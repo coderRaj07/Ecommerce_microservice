@@ -13,7 +13,7 @@ export interface UserModelAttributes {
   profile_pic?: string;
   verification_code?: number;
   expiry?: Date;
-  verified: boolean;
+  verified?: boolean;
 }
 
 export class UserModel extends Model<UserModelAttributes> { }
