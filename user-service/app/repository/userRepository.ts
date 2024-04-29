@@ -45,7 +45,7 @@ export class UserRepository extends CRUDOperations<UserModelAttributes> {
     }
   }
 
-  async updateVerification(userId: string, verificationCode: number, expiry: Date): Promise<void> {
+  async updateVerification(userId: number, verificationCode: number, expiry: Date): Promise<void> {
     try {
       await this.update(
         { user_id: userId },
