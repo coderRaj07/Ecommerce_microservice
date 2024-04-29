@@ -218,11 +218,19 @@ module.exports = {
 
 ## Run again
 
+## Runs all the migration files present sequentially
+
 npx sequelize db:migrate
 
 ## If want to revert changes (It will go for old table data and and undo changes)
 
 npx sequelize db:migrate:undo
+
+## run the up command from specific migration file
+
+npx sequelize-cli db:migrate:up --to <migration-file-name>
+
+npx sequelize-cli db:migrate:down --to <migration-file-name>
 
 ## On config/config.json
 
