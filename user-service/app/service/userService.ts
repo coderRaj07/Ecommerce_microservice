@@ -83,8 +83,9 @@ export class UserService {
         // save on DB to confirm verification
         await this.repository.updateVerificationCode(payload.user_id, code, expiry);
         
-        // To be uncommented for production 
-        // to send verification code to Phone
+        //------To be uncommented for production------//
+        //------to send verification code to Phone----//
+        
         // await SendVerificationCode(code, payload.phone);
 
         return SuccessResponse({ message: "Verification code is sent to the mobile number" })
