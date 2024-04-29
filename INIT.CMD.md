@@ -27,6 +27,10 @@ yarn add bcrypt && yarn add --dev @types/bcrypt
 
 yarn add jsonwebtoken && yarn add --dev @types/jsonwebtoken
 
+yarn add dayjs
+
+
+
 ## To run postgresql from docker 
 
 ## (docker-desktop must be running in background)
