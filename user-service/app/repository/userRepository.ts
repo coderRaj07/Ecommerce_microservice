@@ -18,28 +18,22 @@
 
 // }
 
-import { UserModel, UserModelAttributes } from "../models/UserModel";
 
-export class UserRepository {
+import { UserModelAttributes } from "../models/UserModel";
+import { CRUDOperations } from "./dbOperation";
+
+export class UserRepository extends CRUDOperations<UserModelAttributes> {
+  constructor() {
+    super();
+  }
+
   async createAccount(userData: UserModelAttributes) {
-    try {
-      const user = await UserModel.create(userData);
-      return user.toJSON() as UserModelAttributes;
-    } catch (error) {
-        console.error(error);
-      throw new Error('Could not create user account');
-    }
+    return this.create(userData);
   }
 
   async findAccount(email: string) {
-    try {
-      const user = await UserModel.findOne({ where: { email } });
-      if (!user) {
-        throw new Error('User does not exist with provided email id!');
-      }
-      return user.toJSON() as UserModelAttributes;
-    } catch (error) {
-      throw new Error('Could not find user account');
-    }
+    return this.find({ email });
   }
 }
+
+
