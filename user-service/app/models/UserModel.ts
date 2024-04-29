@@ -8,6 +8,12 @@ export interface UserModelAttributes {
   password: string;
   salt: string;
   userType: "BUYER" | "SELLER";
+  first_name?: string;
+  last_name?: string;
+  profile_pic?: string;
+  verification_code?: number;
+  expiry?: Date;
+  verified: boolean;
 }
 
 export class UserModel extends Model<UserModelAttributes> { }
@@ -41,6 +47,31 @@ UserModel.init(
     userType: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    first_name: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    last_name: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    profile_pic: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    verification_code: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    expiry: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    verified: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
   },
   {
