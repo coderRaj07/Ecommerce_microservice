@@ -101,15 +101,21 @@ export class UserRepository extends CRUDOperations<UserModel> {
       postCode
     }
   }: ProfileInput) {
-
-    await this.addressRepository.createAddress(
-      user_id,
-      addressLine1,
-      addressLine2,
-      city,
-      country,
-      postCode
-    );
+    // if address is not created for the user_id, then create address
+    // if address is already created, then update address
+    const address = await this.addressRepository.find({ user_id });
+   
+    // To avoid creation of multiple address for the same user
+    if (!address) {
+      await this.addressRepository.createAddress(
+        user_id,
+        addressLine1,
+        addressLine2,
+        city,
+        country,
+        postCode
+      );
+    }
 
     const updatedUser = await this.updateUser(
       user_id,
