@@ -13,4 +13,7 @@ migrate_up:
 migrate_down:
 	npx sequelize db:migrate:undo
 
+create_migration:
+	npx sequelize migration:generate --name $(name)	
+
 .PHONEY: start_db stop_db server
