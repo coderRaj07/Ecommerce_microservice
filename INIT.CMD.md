@@ -228,9 +228,18 @@ npx sequelize db:migrate:undo
 
 ## run the up command from specific migration file
 
-npx sequelize-cli db:migrate:up --to <migration-file-name>
+## up command
 
-npx sequelize-cli db:migrate:down --to <migration-file-name>
+npx sequelize db:migrate --name=<file_name>
+
+## down command
+
+npx sequelize db:migrate:undo --name=<file_name>
+
+ npx sequelize db:migrate:undo --name=20240430175125-create-users-address-table
+
+## before running migration again 1st down then up
+
 
 ## On config/config.json
 
@@ -247,6 +256,7 @@ npx sequelize-cli db:migrate:down --to <migration-file-name>
 
 npx sequelize-cli db:migrate
 
+make create_migration name=create-users-address-table
 
 ## create an IAM user and accesskey
 
