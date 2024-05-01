@@ -15,7 +15,7 @@ export class CRUDOperations<T extends Model> {
     async find(condition: any): Promise<T> {
         const record = await this.model.findOne({ where: condition });
         if (!record) {
-            throw new Error('Record does not exist with the provided condition!');
+            return null;
         }
         return record.toJSON() as T;
     }
