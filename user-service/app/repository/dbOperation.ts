@@ -1,21 +1,27 @@
-import { UserModel } from "../models/UserModel";
+import { Model, ModelStatic } from 'sequelize';
 
-export class CRUDOperations<T> {
-    async create(data: T): Promise<T> {
-        const record = await UserModel.create(data);
+export class CRUDOperations<T extends Model> {
+    private model: ModelStatic<T>;
+
+    constructor(model: ModelStatic<T>) {
+        this.model = model;
+    }
+
+    async create(data: any): Promise<T> {
+        const record = await this.model.create(data);
         return record.toJSON() as T;
     }
 
     async find(condition: any): Promise<T> {
-        const record = await UserModel.findOne({ where: condition });
+        const record = await this.model.findOne({ where: condition });
         if (!record) {
-            throw new Error('Record does not exist with provided condition!');
+            throw new Error('Record does not exist with the provided condition!');
         }
         return record.toJSON() as T;
     }
 
-    async update(condition: any, data: Partial<T>): Promise<T> {
-        const [, [updatedRecord]] = await UserModel.update(data, {
+    async update(condition: any, data: Partial<any>): Promise<T> {
+        const [, [updatedRecord]] = await this.model.update(data, {
             where: condition,
             returning: true,
         });
@@ -23,6 +29,6 @@ export class CRUDOperations<T> {
     }
 
     async delete(condition: any): Promise<void> {
-        await UserModel.destroy({ where: condition });
+        await this.model.destroy({ where: condition });
     }
 }
