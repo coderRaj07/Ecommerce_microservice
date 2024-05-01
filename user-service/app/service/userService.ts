@@ -11,6 +11,7 @@ import { GetHashedPassword, GetSalt, GetToken, ValidatePassword, VerifyToken } f
 import { GenerateAccessCode } from "../utility/notification";
 import { VerificationInput } from "../models/dto/UpdateInput";
 import { TimeDifference } from "../utility/dateHelper";
+import { ProfileInput } from "../models/dto/AddressInput";
 
 @autoInjectable()
 export class UserService {
@@ -82,10 +83,10 @@ export class UserService {
 
         // save on DB to confirm verification
         await this.repository.updateVerificationCode(payload.user_id, code, expiry);
-        
+
         //------To be uncommented for production------//
         //------to send verification code to Phone----//
-        
+
         // await SendVerificationCode(code, payload.phone);
 
         return SuccessResponse({ message: "Verification code is sent to the mobile number" })
@@ -128,15 +129,69 @@ export class UserService {
 
     // Profile Section
     async CreateProfile(event: APIGatewayProxyEventV2) {
-        return SuccessResponse({ message: "response from create user profie" })
+        try {
+            const token = event.headers.authorization;
+            const payload = await VerifyToken(token);
+            if (!payload) {
+                return ErrorResponse(404, "Authorisation Failed")
+            }
+
+            const input = plainToClass(ProfileInput, event.body);
+            const error = await AppValidationError(input);
+            if (error) return ErrorResponse(404, error);
+
+            // save on db
+            const result = await this.repository.createProfile(payload.user_id, input);
+            console.log(result);
+
+            return SuccessResponse({ message: "Profie created!" })
+        }
+        catch (error) {
+            console.error(error, "from userService CreateProfile");
+            return ErrorResponse(500, error);
+        }
     }
 
     async GetProfile(event: APIGatewayProxyEventV2) {
-        return SuccessResponse({ message: "response from Get User Profie" })
+        try {
+            const token = event.headers.authorization;
+            const payload = await VerifyToken(token);
+            if (!payload) {
+                return ErrorResponse(404, "Authorisation Failed")
+            }
+            const result = await this.repository.getUserProfile(payload.user_id);
+            console.log(result);
+            return SuccessResponse(result)
+        }
+        catch (error) {
+            console.error(error, "from userService GetProfile");
+            return ErrorResponse(500, error);
+        }
     }
 
     async EditProfile(event: APIGatewayProxyEventV2) {
-        return SuccessResponse({ message: "response from Edit User Profie" })
+        try {
+            const token = event.headers.authorization;
+            const payload = await VerifyToken(token);
+            if (!payload) {
+                return ErrorResponse(404, "Authorisation Failed")
+            }
+            // user can have multiple addresses
+            // so put another field to identify the address (call it index)
+            const input = plainToClass(ProfileInput, event.body);
+            const error = await AppValidationError(input);
+            if (error) return ErrorResponse(404, error);
+
+            // save on db
+            const result = await this.repository.editProfile(payload.user_id, input);
+
+            return SuccessResponse({ message: "User Profie edited" })
+        }
+        catch (error) {
+            console.error(error, "from userService EditProfile");
+            return ErrorResponse(500, error);
+        }
+
     }
 
     // Cart Section
