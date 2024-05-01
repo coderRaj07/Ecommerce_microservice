@@ -16,7 +16,20 @@ export interface UserModelAttributes {
   verified?: boolean;
 }
 
-export class UserModel extends Model<UserModelAttributes> { }
+export class UserModel extends Model<UserModelAttributes> {
+  declare user_id: number;
+  declare phone: string;
+  declare email: string;
+  declare password: string;
+  declare salt: string;
+  declare userType: "BUYER" | "SELLER";
+  declare first_name: string;
+  declare last_name: string;
+  declare profile_pic: string;
+  declare verification_code: number;
+  declare expiry: Date;
+  declare verified: boolean;
+ }
 
 UserModel.init(
   {
@@ -77,5 +90,6 @@ UserModel.init(
   {
     sequelize,
     modelName: 'User',
+    tableName: 'Users',
   }
 );
