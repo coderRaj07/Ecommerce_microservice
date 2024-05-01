@@ -1,12 +1,17 @@
-import { Signup } from "app/handler";
+import { Signup } from "../handler";
 import { ErrorResponse, SuccessResponse } from "../utility/response";
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { plainToClass } from "class-transformer";
-import { SignupInput } from "../models/dto/SignupInput";
+import { LoginInput, SignupInput } from "../models/dto/index";
 import { UserRepository } from "../repository/userRepository";
 import { AppValidationError } from "../utility/errors";
 import { autoInjectable } from "tsyringe";
-import { GetHashedPassword, GetSalt } from "app/utility/password";
+import { SendVerificationCode } from "../utility/notification";
+import { GetHashedPassword, GetSalt, GetToken, ValidatePassword, VerifyToken } from "../utility/password";
+import { GenerateAccessCode } from "../utility/notification";
+import { VerificationInput } from "../models/dto/UpdateInput";
+import { TimeDifference } from "../utility/dateHelper";
+import { ProfileInput } from "../models/dto/AddressInput";
 
 @autoInjectable()
 export class UserService {
@@ -14,6 +19,10 @@ export class UserService {
 
     constructor(repository: UserRepository) {
         this.repository = repository;
+    }
+
+    async ResponseWriteError(event: APIGatewayProxyEventV2) {
+        return ErrorResponse(404, "Request Method is not supported")
     }
 
     async CreateUser(event: APIGatewayProxyEventV2) {
@@ -24,10 +33,9 @@ export class UserService {
             const error = await AppValidationError(input);
             if (error) return ErrorResponse(404, error);
 
-
             const salt = await GetSalt();
             const hashedPassword = await GetHashedPassword(input.password, salt);
-            
+            console.log(salt, hashedPassword, "SALT AND HASHED PASSWORD")
             const data = await this.repository.createAccount({
                 email: input.email,
                 password: hashedPassword,
@@ -35,33 +43,155 @@ export class UserService {
                 userType: "BUYER",
                 salt: salt,
             });
-            return SuccessResponse(input)
+            return SuccessResponse(data)
 
         } catch (error) {
-            console.log(error);
+            console.error(error, "from userService");
             return ErrorResponse(500, error);
         }
     }
 
     async UserLogin(event: APIGatewayProxyEventV2) {
-        return SuccessResponse({ message: "response from user login" })
+        try {
+            const input = plainToClass(LoginInput, event.body);
+            const error = await AppValidationError(input);
+            if (error) return ErrorResponse(404, error);
+
+            const data = await this.repository.findAccount(input.email);
+            const verified = await ValidatePassword(input.password, data.password, data.salt);
+            if (!verified) { return ErrorResponse(404, "Invalid Password"); }
+            if (!verified) {
+                throw new Error("Invalid Password")
+            }
+            const token = GetToken(data);
+
+            return SuccessResponse({ token })
+
+        } catch (error) {
+            console.error(error, "from userService Login");
+            return ErrorResponse(500, error);
+        }
+    }
+
+    async GetVerificationToken(event: APIGatewayProxyEventV2) {
+        const token = event.headers.authorization;
+        const payload = await VerifyToken(token);
+        if (!payload) {
+            return ErrorResponse(404, "Authorisation Failed")
+        }
+        const { code, expiry } = GenerateAccessCode();
+
+        // save on DB to confirm verification
+        await this.repository.updateVerificationCode(payload.user_id, code, expiry);
+
+        //------To be uncommented for production------//
+        //------to send verification code to Phone----//
+
+        // await SendVerificationCode(code, payload.phone);
+
+        return SuccessResponse({ message: "Verification code is sent to the mobile number" })
     }
 
     async VerifyUser(event: APIGatewayProxyEventV2) {
+        const token = event.headers.authorization;
+        const payload = await VerifyToken(token);
+        if (!payload) {
+            return ErrorResponse(404, "Authorisation Failed")
+        }
+
+        const input = plainToClass(VerificationInput, event.body);
+        const error = await AppValidationError(input);
+        if (error) {
+            return ErrorResponse(404, error);
+        }
+
+        // find the user account
+        const { verification_code, expiry } = await this.repository.findAccount(payload.email);
+        if (verification_code === parseInt(input.code)) {
+            // check expiry 
+            const currentTime = new Date();
+            const diff = TimeDifference(expiry.toISOString(), currentTime.toISOString(), "m");
+            if (diff > 0) {
+                console.log(diff, "TIME DIFFERENCE")
+                console.log("Verified Successfully")
+                // update on db
+                await this.repository.updateVerifyUser(payload.user_id);
+            }
+            else {
+                return ErrorResponse(404, "Verification code has expired")
+            }
+
+
+        }
+
         return SuccessResponse({ message: "response from verify user" })
     }
 
     // Profile Section
     async CreateProfile(event: APIGatewayProxyEventV2) {
-        return SuccessResponse({ message: "response from create user profie" })
+        try {
+            const token = event.headers.authorization;
+            const payload = await VerifyToken(token);
+            if (!payload) {
+                return ErrorResponse(404, "Authorisation Failed")
+            }
+
+            const input = plainToClass(ProfileInput, event.body);
+            const error = await AppValidationError(input);
+            if (error) return ErrorResponse(404, error);
+
+            // save on db
+            const result = await this.repository.createProfile(payload.user_id, input);
+            console.log(result);
+
+            return SuccessResponse({ message: "Profie created!" })
+        }
+        catch (error) {
+            console.error(error, "from userService CreateProfile");
+            return ErrorResponse(500, error);
+        }
     }
 
     async GetProfile(event: APIGatewayProxyEventV2) {
-        return SuccessResponse({ message: "response from Get User Profie" })
+        try {
+            const token = event.headers.authorization;
+            const payload = await VerifyToken(token);
+            if (!payload) {
+                return ErrorResponse(404, "Authorisation Failed")
+            }
+            const result = await this.repository.getUserProfile(payload.user_id);
+            console.log(result);
+            return SuccessResponse(result)
+        }
+        catch (error) {
+            console.error(error, "from userService GetProfile");
+            return ErrorResponse(500, error);
+        }
     }
 
     async EditProfile(event: APIGatewayProxyEventV2) {
-        return SuccessResponse({ message: "response from Edit User Profie" })
+        try {
+            const token = event.headers.authorization;
+            const payload = await VerifyToken(token);
+            if (!payload) {
+                return ErrorResponse(404, "Authorisation Failed")
+            }
+            // user can have multiple addresses
+            // so put another field to identify the address (call it index)
+            const input = plainToClass(ProfileInput, event.body);
+            const error = await AppValidationError(input);
+            if (error) return ErrorResponse(404, error);
+
+            // save on db
+            const result = await this.repository.editProfile(payload.user_id, input);
+
+            return SuccessResponse({ message: "User Profie edited" })
+        }
+        catch (error) {
+            console.error(error, "from userService EditProfile");
+            return ErrorResponse(500, error);
+        }
+
     }
 
     // Cart Section

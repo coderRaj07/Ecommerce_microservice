@@ -4,24 +4,34 @@ import { UserService } from "../service/userService"
 import { ErrorResponse } from "../utility/response";
 import middy from "@middy/core";
 import bodyParser from "@middy/http-json-body-parser";
+import '../di-container';
 
 const service = container.resolve(UserService);
 
 
 export const Signup = middy((event: APIGatewayProxyEventV2) => {
     return service.CreateUser(event);
-  }).use(bodyParser());
-  
+}).use(bodyParser());
 
-export const Login = async (event: APIGatewayProxyEventV2) => {
+
+export const Login = middy((event: APIGatewayProxyEventV2) => {
     return service.UserLogin(event);
-}
+}).use(bodyParser());
 
-export const Verify = async (event: APIGatewayProxyEventV2) => {
-    return service.VerifyUser(event);
-}
+export const Verify = middy((event: APIGatewayProxyEventV2) => {
+    const httpMethod = event.requestContext.http.method.toUpperCase();
+    if (httpMethod === "POST") {
+        return service.VerifyUser(event);
+    }
+    else if (httpMethod === "GET") {
+        return service.GetVerificationToken(event);
+    }
+    else {
+        return ErrorResponse(404, "request method is not supported!")
+    }
+}).use(bodyParser());
 
-export const Profile = async (event: APIGatewayProxyEventV2) => {
+export const Profile = middy((event: APIGatewayProxyEventV2) => {
     // get // put // post
     const httpMethod = event.requestContext.http.method.toUpperCase();
     if (httpMethod === "GET") {
@@ -36,9 +46,9 @@ export const Profile = async (event: APIGatewayProxyEventV2) => {
     else {
         return ErrorResponse(404, "request method is not supported!")
     }
-}
+}).use(bodyParser());
 
-export const Cart = async (event: APIGatewayProxyEventV2) => {
+export const Cart = middy((event: APIGatewayProxyEventV2) => {
     // get // put // post
     const httpMethod = event.requestContext.http.method.toUpperCase();
     if (httpMethod === "GET") {
@@ -53,9 +63,9 @@ export const Cart = async (event: APIGatewayProxyEventV2) => {
     else {
         return ErrorResponse(404, "request method is not supported!")
     }
-}
+}).use(bodyParser());
 
-export const Payment = async (event: APIGatewayProxyEventV2) => {
+export const Payment = middy((event: APIGatewayProxyEventV2) => {
     // get // put // post
     const httpMethod = event.requestContext.http.method.toUpperCase();
     if (httpMethod === "GET") {
@@ -70,4 +80,4 @@ export const Payment = async (event: APIGatewayProxyEventV2) => {
     else {
         return ErrorResponse(404, "request method is not supported!")
     }
-}
+}).use(bodyParser());
