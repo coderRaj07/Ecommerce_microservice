@@ -4,6 +4,7 @@ import { UserService } from "../service/userService"
 import { ErrorResponse } from "../utility/response";
 import middy from "@middy/core";
 import bodyParser from "@middy/http-json-body-parser";
+import '../di-container';
 
 const service = container.resolve(UserService);
 
