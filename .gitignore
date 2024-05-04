@@ -1,3 +1,4 @@
+# user-service
 # package directories
 user-service/node_modules
 jspm_packages
@@ -7,3 +8,14 @@ user-service/.serverless
 /user-service/.build/*
 .DS_Store
 **/.DS_Store
+
+# product-service
+/product-service/*.js
+/product-service/!jest.config.js
+/product-service/*.d.ts
+/product-service/node_modules
+
+# CDK asset staging directory
+/product-service/.cdk.staging
+/product-service/cdk.out
+
